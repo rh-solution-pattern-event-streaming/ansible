@@ -1,0 +1,17 @@
+---
+
+- name: Install AMQ Streams Operator
+  when: lab_setup | bool
+  ansible.builtin.include_tasks: amq_streams_operator.yml
+
+- name: Install OpenShift Gitops
+  ansible.builtin.include_tasks: openshift_gitops.yml
+
+- name: Install Service Binding Operator
+  when: lab_setup | bool
+  ansible.builtin.include_tasks: service_binding_operator.yml
+
+- name: Set up app for streaming and api modules
+  when: lab_setup | bool
+  ansible.builtin.include_tasks: setup_app_services.yml
+

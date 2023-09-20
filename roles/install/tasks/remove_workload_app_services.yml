@@ -1,0 +1,34 @@
+---
+# Implement your workload removal tasks here
+# ------------------------------------------
+
+- name: Create usernames
+  ansible.builtin.set_fact:
+    _users: |
+       {{ _users | default([]) + [user_prefix + item | string] }}
+  loop: "{{ range(1, ((user_count | int) + 1)) | list }}"
+
+- name: Remove ArgoCD applications
+  kubernetes.core.k8s:
+    state: absent
+    definition: "{{ lookup('template', 'app-services/application-app-services.yaml.j2') }}"
+  vars:
+    _app_namespace: "{{ namespace_prefix }}user"
+    _kafka_namespace: "{{ namespace_prefix }}user"
+
+- name: Remove rolebindings
+  kubernetes.core.k8s:
+    state: absent
+    resource_definition: "{{ lookup('template', 'namespace/rolebinding.yaml.j2') }}"
+  vars:
+    _bindings:
+      - namespace: "{{ namespace_prefix }}user"
+        role: "admin"
+
+- name: Remove user namespaces
+  kubernetes.core.k8s:
+    state: absent
+    resource_definition: "{{ lookup('template', 'namespace/namespace.yaml.j2') }}"
+  vars:
+    _namespaces:
+      - "{{ namespace_prefix }}user"

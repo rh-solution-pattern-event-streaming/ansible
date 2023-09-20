@@ -1,0 +1,5 @@
+== API First Solution Pattern
+
+* oc login into the OpenShift cluster as admin
+
+* ansible-playbook playbook.yml

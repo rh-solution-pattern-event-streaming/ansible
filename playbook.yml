@@ -1,0 +1,13 @@
+---
+- name: Run the role
+  hosts: localhost
+  gather_facts: false
+  run_once: true
+  become: false
+  
+  tasks:
+    - name: "Install"
+      ansible.builtin.include_role:
+        name: install
+      vars:
+        ACTION: "provision"

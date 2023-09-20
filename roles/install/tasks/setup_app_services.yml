@@ -1,0 +1,36 @@
+---
+
+- name: Create usernames
+  ansible.builtin.set_fact:
+    _users: |
+       {{ _users | default([]) + [user_prefix + item | string] }}
+  loop: "{{ range(1, ((user_count | int) + 1)) | list }}"
+
+- name: "Create {{ user_count }} user namespaces"
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('template', 'namespace/namespace.yaml.j2') }}"
+  vars:
+    _namespaces:
+      - "{{ namespace_prefix }}user"
+  retries: 10
+  delay: 30
+
+- name: "Give {{ user_count }} users access to projects"
+  kubernetes.core.k8s:
+    state: present
+    resource_definition: "{{ lookup('template', 'namespace/rolebinding.yaml.j2') }}"
+  vars:
+    _bindings:
+      - namespace: "{{ namespace_prefix }}user"
+        role: "admin"
+  retries: 10
+  delay: 30
+
+- name: Deploy application
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'app-services/application-app-services.yaml.j2') }}"
+  vars:
+    _app_namespace: "{{ namespace_prefix }}user"
+    _kafka_namespace: "{{ namespace_prefix }}user"

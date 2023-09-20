@@ -1,0 +1,20 @@
+---
+# Implement your workload removal tasks here
+# ------------------------------------------
+
+
+- name: Remove app for streaming modules
+  ansible.builtin.include_tasks: remove_workload_app_services.yml
+
+- name: Remove app services lab - AMQ Streams operator
+  ansible.builtin.include_tasks: remove_workload_amq_streams_operator.yml
+
+- name: Remove app services lab - Service Binding Operator
+  ansible.builtin.include_tasks: remove_workload_service_binding_operator.yml
+
+# Leave this as the last task in the playbook.
+# --------------------------------------------
+- name: Remove_workload tasks complete
+  ansible.builtin.debug:
+    msg: "Remove Workload tasks completed successfully."
+  when: not silent|bool
